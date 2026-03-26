@@ -5,655 +5,673 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HP&E Document Filing Assistant</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap');
 
   :root {
-    --navy: #0d1f2d;
-    --navy-mid: #1a3347;
-    --navy-light: #254560;
+    --ink: #111820;
+    --ink-mid: #1c2b38;
+    --ink-light: #263d50;
     --amber: #f0a500;
-    --amber-glow: rgba(240,165,0,0.12);
-    --white: #f5f0e8;
-    --grey: #8a9baa;
-    --grey-dim: #4a5c6a;
-    --success: #3dd68c;
-    --panel: rgba(26,51,71,0.6);
-    --border: rgba(240,165,0,0.18);
+    --amber-pale: rgba(240,165,0,0.10);
+    --amber-border: rgba(240,165,0,0.22);
+    --cream: #f2ede4;
+    --cream-dim: #c8c2b6;
+    --muted: #6b7f8e;
+    --muted-dark: #3a4f5e;
+    --green: #2ecc8e;
+    --panel: rgba(28,43,56,0.75);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Syne', sans-serif;
-    background: var(--navy);
-    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    background: var(--ink);
+    color: var(--cream);
     min-height: 100vh;
-    overflow-x: hidden;
   }
 
+  /* Subtle diagonal stripe background */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-      linear-gradient(rgba(240,165,0,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(240,165,0,0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 40px,
+      rgba(240,165,0,0.025) 40px,
+      rgba(240,165,0,0.025) 41px
+    );
     pointer-events: none;
     z-index: 0;
   }
 
-  .container {
+  .wrap {
     position: relative;
     z-index: 1;
-    max-width: 780px;
+    max-width: 720px;
     margin: 0 auto;
-    padding: 48px 24px 80px;
+    padding: 52px 24px 100px;
   }
 
-  .header {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 48px;
-    animation: fadeDown 0.5s ease both;
+  /* Header */
+  .hdr {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 18px;
+    align-items: center;
+    margin-bottom: 52px;
+    animation: rise 0.5s ease both;
   }
 
-  .logo-mark {
-    width: 52px;
-    height: 52px;
+  .hdr-badge {
+    grid-row: 1 / 3;
+    width: 58px;
+    height: 58px;
     background: var(--amber);
-    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--navy);
-    letter-spacing: -1px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--ink);
+    letter-spacing: 1px;
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 85% 100%, 0 100%);
   }
 
-  .header-text h1 {
-    font-size: 26px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    line-height: 1.1;
+  .hdr h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    line-height: 1;
   }
 
-  .header-text p {
-    font-size: 13px;
-    color: var(--grey);
-    margin-top: 4px;
+  .hdr p {
     font-family: 'DM Mono', monospace;
-  }
-
-  .api-section {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-bottom: 28px;
-    animation: fadeDown 0.5s 0.1s ease both;
-    backdrop-filter: blur(8px);
-  }
-
-  .api-section.connected {
-    border-color: rgba(61,214,140,0.3);
-    background: rgba(61,214,140,0.05);
-  }
-
-  .api-label {
     font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--grey);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-top: 3px;
   }
 
-  .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--grey-dim);
-    display: inline-block;
-    flex-shrink: 0;
+  /* Progress bar */
+  .progress-bar {
+    height: 2px;
+    background: var(--ink-light);
+    border-radius: 2px;
+    margin-bottom: 36px;
+    overflow: hidden;
+    animation: rise 0.5s 0.1s ease both;
   }
 
-  .status-dot.live {
-    background: var(--success);
-    box-shadow: 0 0 6px var(--success);
-  }
-
-  .api-hint {
-    font-size: 12px;
-    color: var(--grey-dim);
-    font-family: 'DM Mono', monospace;
-    margin-bottom: 10px;
-  }
-
-  .api-hint a {
-    color: var(--amber);
-    text-decoration: none;
-  }
-
-  .api-hint a:hover { text-decoration: underline; }
-
-  .api-row {
-    display: flex;
-    gap: 10px;
-  }
-
-  input[type="password"], input[type="text"], textarea {
-    background: rgba(13,31,45,0.8);
-    border: 1px solid var(--grey-dim);
-    border-radius: 6px;
-    color: var(--white);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-
-  input:focus, textarea:focus { border-color: var(--amber); }
-  input::placeholder, textarea::placeholder { color: var(--grey-dim); }
-
-  .btn {
+  .progress-fill {
+    height: 100%;
     background: var(--amber);
-    border: none;
-    border-radius: 6px;
-    color: var(--navy);
-    cursor: pointer;
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    padding: 10px 20px;
-    transition: background 0.15s, transform 0.1s;
-    white-space: nowrap;
-    flex-shrink: 0;
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
   }
 
-  .btn:hover { background: #ffc226; }
-  .btn:active { transform: scale(0.97); }
-  .btn:disabled { background: var(--grey-dim); cursor: not-allowed; color: var(--navy-light); }
-
-  .query-section {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 24px;
-    margin-bottom: 24px;
-    animation: fadeDown 0.5s 0.2s ease both;
-    backdrop-filter: blur(8px);
-  }
-
-  .query-label {
-    font-size: 11px;
+  .progress-label {
     font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--amber);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    animation: rise 0.5s 0.1s ease both;
   }
 
-  textarea {
-    resize: vertical;
-    min-height: 90px;
-    line-height: 1.6;
+  /* Question card */
+  .q-card {
+    background: var(--panel);
+    border: 1px solid var(--amber-border);
+    border-radius: 6px;
+    padding: 32px;
+    backdrop-filter: blur(12px);
+    animation: rise 0.35s ease both;
+  }
+
+  .q-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
     margin-bottom: 14px;
   }
 
-  .query-footer {
+  .q-text {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--cream);
+    margin-bottom: 28px;
+  }
+
+  /* Option buttons */
+  .options {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .hint {
-    font-size: 12px;
-    color: var(--grey-dim);
-    font-family: 'DM Mono', monospace;
-  }
-
-  .response-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    backdrop-filter: blur(8px);
-    margin-bottom: 24px;
-    animation: fadeDown 0.4s ease both;
-  }
-
-  .response-header {
-    background: rgba(240,165,0,0.08);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
-  }
-
-  .response-header span {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--amber);
-  }
-
-  .response-body {
-    padding: 24px;
+  .opt {
+    background: var(--ink-mid);
+    border: 1px solid var(--muted-dark);
+    border-radius: 5px;
+    color: var(--cream-dim);
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
     font-size: 15px;
-    line-height: 1.75;
-  }
-
-  .path-highlight {
-    display: inline-block;
-    background: var(--amber-glow);
-    border: 1px solid rgba(240,165,0,0.3);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: var(--amber);
-    margin: 2px 0;
-  }
-
-  .loading {
+    font-weight: 400;
+    padding: 14px 18px;
+    text-align: left;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 24px;
-    color: var(--grey);
-    font-size: 14px;
-    font-family: 'DM Mono', monospace;
   }
 
-  .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--grey-dim);
-    border-top-color: var(--amber);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+  .opt:hover {
+    background: var(--ink-light);
+    border-color: var(--amber);
+    color: var(--cream);
+    transform: translateX(4px);
+  }
+
+  .opt-key {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    background: var(--amber-pale);
+    border: 1px solid var(--amber-border);
+    border-radius: 3px;
+    padding: 2px 7px;
     flex-shrink: 0;
   }
 
-  .history-label {
-    font-size: 11px;
+  /* Result card */
+  .result-card {
+    background: var(--panel);
+    border: 1px solid var(--amber-border);
+    border-radius: 6px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    animation: rise 0.35s ease both;
+  }
+
+  .result-top {
+    background: rgba(240,165,0,0.07);
+    border-bottom: 1px solid var(--amber-border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .result-top .tick {
+    width: 22px;
+    height: 22px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .result-top span {
     font-family: 'DM Mono', monospace;
+    font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--grey-dim);
-    margin-bottom: 12px;
-    padding-left: 2px;
+    color: var(--amber);
   }
 
-  .history-item {
-    border: 1px solid rgba(74,92,106,0.4);
-    border-radius: 6px;
-    margin-bottom: 8px;
-    overflow: hidden;
+  .result-body {
+    padding: 32px;
   }
 
-  .history-question {
-    background: rgba(26,51,71,0.4);
-    padding: 10px 16px;
-    font-size: 13px;
-    color: var(--grey);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.15s;
+  .result-path {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1.5px;
+    color: var(--amber);
+    line-height: 1.2;
+    margin-bottom: 16px;
   }
 
-  .history-question:hover { background: rgba(26,51,71,0.8); }
-
-  .q-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 85%;
+  .result-path .arrow {
+    color: var(--muted);
+    margin: 0 6px;
+    font-size: 18px;
   }
 
-  .history-answer {
+  .result-desc {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--cream-dim);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    border-left: 2px solid var(--amber-border);
+    padding-left: 16px;
+  }
+
+  .result-also {
+    background: var(--ink-mid);
+    border-radius: 4px;
     padding: 14px 16px;
     font-size: 13px;
-    line-height: 1.65;
-    border-top: 1px solid rgba(74,92,106,0.3);
-    display: none;
-  }
-
-  .history-answer.open { display: block; }
-
-  .chevron {
-    color: var(--grey-dim);
-    font-size: 11px;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-
-  .chevron.open { transform: rotate(180deg); }
-
-  .error-card {
-    background: rgba(220,53,69,0.08);
-    border: 1px solid rgba(220,53,69,0.3);
-    border-radius: 8px;
-    padding: 16px 20px;
-    font-size: 14px;
-    color: #ff8090;
+    color: var(--muted);
     font-family: 'DM Mono', monospace;
+    line-height: 1.6;
     margin-bottom: 24px;
   }
 
+  .result-also strong {
+    color: var(--cream-dim);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--muted-dark);
+    border-radius: 5px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    padding: 10px 20px;
+    transition: all 0.15s;
+  }
+
+  .btn-reset:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* Back button */
+  .btn-back {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+    animation: rise 0.35s ease both;
+  }
+
+  .btn-back:hover { color: var(--amber); }
+
+  /* Folder ref */
   details {
+    margin-top: 40px;
     background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
+    border: 1px solid rgba(74,92,106,0.35);
+    border-radius: 6px;
     backdrop-filter: blur(8px);
-    margin-top: 32px;
-    animation: fadeDown 0.4s 0.3s ease both;
+    animation: rise 0.5s 0.2s ease both;
   }
 
   summary {
     padding: 16px 24px;
-    font-size: 11px;
     font-family: 'DM Mono', monospace;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--grey);
+    color: var(--muted);
     cursor: pointer;
     list-style: none;
     user-select: none;
   }
 
   summary::-webkit-details-marker { display: none; }
-  summary:hover { color: var(--white); }
+  summary:hover { color: var(--cream); }
 
-  .folder-tree {
+  .ftree {
     padding: 16px 24px 24px;
+    border-top: 1px solid rgba(74,92,106,0.3);
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    line-height: 2;
-    border-top: 1px solid var(--border);
+    font-size: 11px;
+    line-height: 2.1;
   }
 
-  .folder-tree .top { color: var(--amber); font-weight: 500; }
-  .folder-tree .sub { color: var(--white); padding-left: 20px; }
-  .folder-tree .subsub { color: var(--grey); padding-left: 40px; }
+  .ftree .t1 { color: var(--amber); }
+  .ftree .t2 { color: var(--cream-dim); padding-left: 18px; }
+  .ftree .t3 { color: var(--muted); padding-left: 36px; }
 
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 520px) {
-    .header-text h1 { font-size: 20px; }
-    .container { padding: 28px 16px 60px; }
-    .query-footer { flex-direction: column; align-items: flex-start; }
-    .btn { width: 100%; text-align: center; }
+  @media (max-width: 500px) {
+    .hdr h1 { font-size: 24px; }
+    .q-text { font-size: 17px; }
+    .result-path { font-size: 20px; }
+    .wrap { padding: 32px 16px 80px; }
   }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-  <div class="header">
-    <div class="logo-mark">H</div>
-    <div class="header-text">
-      <h1>Document Filing Assistant</h1>
-      <p>Horizon Power &amp; Energy Ltd &mdash; PR001 Enborne Solar Farm</p>
-    </div>
+  <div class="hdr">
+    <div class="hdr-badge">H</div>
+    <h1>Document Filing Assistant</h1>
+    <p>Horizon Power &amp; Energy &mdash; PR001 Enborne Solar Farm</p>
   </div>
 
+  <div class="progress-label" id="progressLabel">Step 1 of 3</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:33%"></div></div>
 
-
-  <div class="query-section">
-    <div class="query-label">Tell me about your file</div>
-    <textarea id="queryInput"
-      placeholder="e.g. SSE grid connection offer letter March 2026&#10;e.g. EcoGen geotechnical report from ground investigation&#10;e.g. IFC drawing HPE-PR001-CIV-001 Rev 3&#10;e.g. Week 12 EPC progress report"></textarea>
-    <div class="query-footer">
-      <span class="hint">Ctrl + Enter to submit</span>
-      <button class="btn" id="submitBtn" onclick="submitQuery()">Find folder &rarr;</button>
-    </div>
-  </div>
-
-  <div id="responseArea"></div>
-  <div id="historyArea"></div>
+  <div id="backWrap"></div>
+  <div id="main"></div>
 
   <details>
     <summary>&#9656; Full folder structure reference</summary>
-    <div class="folder-tree">
-      <div class="top">01 - Admin &amp; Contract</div>
-      <div class="sub">01.01 - Contracts</div>
-      <div class="sub">01.02 - Invoices to Client</div>
-      <div class="sub">01.03 - NDA</div>
-      <div class="top">02 - Opportunity Work (PRE CONTRACT)</div>
-      <div class="sub">02.01 - Client Information</div>
-      <div class="sub">02.02 - ITT</div>
-      <div class="top">03 - Pre-Delivery</div>
-      <div class="sub">03.01 - Grid</div>
-      <div class="subsub">03.01.01 - Applications</div>
-      <div class="subsub">03.01.02 - G99 Compliance and Witness Testing</div>
-      <div class="subsub">03.01.03 - Offer Acceptance</div>
-      <div class="subsub">03.01.04 - TQs and Responses</div>
-      <div class="subsub">03.01.05 - Variations</div>
-      <div class="sub">03.02 - Tender Document</div>
-      <div class="sub">03.03 - Site Surveys</div>
-      <div class="sub">03.04 - Procurement</div>
-      <div class="sub">03.05 - Design</div>
-      <div class="subsub">03.05.01 - Analysis</div>
-      <div class="subsub">03.05.02 - Planning Drawings</div>
-      <div class="subsub">03.05.03 - Design CAD</div>
-      <div class="subsub">03.05.04 - Electrical Design</div>
-      <div class="subsub">03.05.05 - IFC PDFs</div>
-      <div class="subsub">03.05.06 - Reference and OEM PDFs</div>
-      <div class="subsub">03.05.07 - Data Sheets</div>
-      <div class="subsub">03.05.08 - Design Risk Register</div>
-      <div class="sub">03.06 - Health &amp; Safety</div>
-      <div class="top">04 - Construction Phase</div>
-      <div class="sub">04.01 - IFC Plans and Drawings</div>
-      <div class="sub">04.02 - NCRs and Close Out</div>
-      <div class="sub">04.03 - Site Audits</div>
-      <div class="sub">04.04 - Progress Reports</div>
-      <div class="sub">04.05 - Subcontractor Documents</div>
-      <div class="top">05 - Comms</div>
-      <div class="sub">05.01 - Meetings</div>
-      <div class="sub">05.02 - Decision Logs</div>
-      <div class="sub">05.03 - Key Emails</div>
-      <div class="top">06 - O&amp;M Post Construction</div>
-      <div class="sub">06.01 - Handover Docs</div>
+    <div class="ftree">
+      <div class="t1">01 - Admin &amp; Contract</div>
+      <div class="t2">01.01 - Contracts</div>
+      <div class="t2">01.02 - Invoices to Client</div>
+      <div class="t2">01.03 - NDA</div>
+      <div class="t1">02 - Opportunity Work (PRE CONTRACT)</div>
+      <div class="t2">02.01 - Client Information</div>
+      <div class="t2">02.02 - ITT</div>
+      <div class="t1">03 - Pre-Delivery</div>
+      <div class="t2">03.01 - Grid</div>
+      <div class="t3">03.01.01 - Applications</div>
+      <div class="t3">03.01.02 - G99 Compliance and Witness Testing</div>
+      <div class="t3">03.01.03 - Offer Acceptance</div>
+      <div class="t3">03.01.04 - TQs and Responses</div>
+      <div class="t3">03.01.05 - Variations</div>
+      <div class="t2">03.02 - Tender Document</div>
+      <div class="t2">03.03 - Site Surveys</div>
+      <div class="t2">03.04 - Procurement</div>
+      <div class="t2">03.05 - Design</div>
+      <div class="t3">03.05.01 - Analysis</div>
+      <div class="t3">03.05.02 - Planning Drawings</div>
+      <div class="t3">03.05.03 - Design CAD</div>
+      <div class="t3">03.05.04 - Electrical Design</div>
+      <div class="t3">03.05.05 - IFC PDFs</div>
+      <div class="t3">03.05.06 - Reference and OEM PDFs</div>
+      <div class="t3">03.05.07 - Data Sheets</div>
+      <div class="t3">03.05.08 - Design Risk Register</div>
+      <div class="t2">03.06 - Health &amp; Safety</div>
+      <div class="t1">04 - Construction Phase</div>
+      <div class="t2">04.01 - IFC Plans and Drawings</div>
+      <div class="t2">04.02 - NCRs and Close Out</div>
+      <div class="t2">04.03 - Site Audits</div>
+      <div class="t2">04.04 - Progress Reports</div>
+      <div class="t2">04.05 - Subcontractor Documents</div>
+      <div class="t1">05 - Comms</div>
+      <div class="t2">05.01 - Meetings</div>
+      <div class="t2">05.02 - Decision Logs</div>
+      <div class="t2">05.03 - Key Emails</div>
+      <div class="t1">06 - O&amp;M Post Construction</div>
+      <div class="t2">06.01 - Handover Docs</div>
     </div>
   </details>
 
 </div>
-
 <script>
-const SYSTEM_PROMPT = `You are a document filing assistant for Horizon Power & Energy Ltd (HP&E), a UK-based utility-scale solar farm developer and principal contractor. Your job is to tell the user exactly which SharePoint folder their file belongs in.
+// Decision tree definition
+// Each node: { q, tag, opts: [{label, next}] } or result node: { result, path, desc, also }
 
-FULL PROJECT FOLDER STRUCTURE:
+const TREE = {
+  start: {
+    tag: 'What kind of document is this?',
+    q: 'What best describes this document?',
+    opts: [
+      { label: 'Contract, invoice, NDA or company admin',         next: 'q_admin' },
+      { label: 'Pre-contract or feasibility work',                next: 'q_precontract' },
+      { label: 'Technical design, survey or grid document',       next: 'q_technical' },
+      { label: 'Construction site document',                      next: 'q_construction' },
+      { label: 'Meeting, email or decision record',               next: 'q_comms' },
+      { label: 'Post-handover or O&M document',                   next: 'r_om' },
+      { label: 'QMS document (HP&E-PROC / POL / TEMP / FORM)',    next: 'r_qms' },
+    ]
+  },
 
-01 - Admin & Contract
-  01.01 - Contracts: Signed contracts, subcontracts, framework agreements, EPC appointments (executed).
-  01.02 - Invoices to Client: Invoices raised to the client, fee drawdown requests, payment records.
-  01.03 - NDA: Non-disclosure agreements, confidentiality agreements.
-  [Root of 01]: Draft appointment documents, insurance certificates, admin correspondence not yet filed to a subfolder.
+  // ADMIN branch
+  q_admin: {
+    tag: 'Admin & Contract',
+    q: 'What type of admin document is it?',
+    opts: [
+      { label: 'Signed contract or executed appointment',         next: 'r_01_01' },
+      { label: 'Invoice raised to client or fee drawdown',        next: 'r_01_02' },
+      { label: 'NDA or confidentiality agreement',                next: 'r_01_03' },
+      { label: 'Draft document, insurance cert or other admin',   next: 'r_01_root' },
+    ]
+  },
 
-02 - Opportunity Work (PRE CONTRACT)
-  02.01 - Client Information: Client-provided background info, site briefs, landowner details, DNO data received pre-contract.
-  02.02 - ITT: ITT documents, tender submissions, budgetary quotations, fee proposals, feasibility studies, pre-contract design sketches, grid pre-application correspondence. Anything produced or received before contract award.
+  // PRE-CONTRACT branch
+  q_precontract: {
+    tag: 'Opportunity / Pre-Contract',
+    q: 'Was this produced before contract award?',
+    opts: [
+      { label: 'Yes, it\'s background info or a brief from the client',   next: 'r_02_01' },
+      { label: 'Yes, it\'s a tender, quote, feasibility or appraisal',    next: 'r_02_02' },
+      { label: 'No, it was produced after contract award',                next: 'q_technical' },
+    ]
+  },
 
-03 - Pre-Delivery
-  03.01 - Grid
-    03.01.01 - Applications: Formal grid connection applications, DNO application forms.
-    03.01.02 - G99 Compliance and Witness Testing: G99 relay settings, witness test records, compliance submissions.
-    03.01.03 - Offer Acceptance: Grid connection offer letters, acceptance correspondence from DNO.
-    03.01.04 - TQs and Responses: Technical queries to or from the DNO and their responses.
-    03.01.05 - Variations: Grid connection variation requests, revised offers, scope change correspondence.
-  03.02 - Tender Document: EPC tender packages, tender returns, bid evaluations, draft contractor appointments.
-  03.03 - Site Surveys: Geotechnical reports, topographic surveys, ecology surveys, ground investigation results, soil corrosivity data, UXO reports.
-  03.04 - Procurement: Equipment procurement documents, supplier quotes, purchase orders for long-lead items.
-  03.05 - Design
-    03.05.01 - Analysis: Energy yield assessments, PVSol outputs, shading analysis, load flow studies, cable sizing calculations, structural calculations.
-    03.05.02 - Planning Drawings: Drawings produced for and submitted with the planning application.
-    03.05.03 - Design CAD: Working CAD files (.dwg), editable AutoCAD project files.
-    03.05.04 - Electrical Design: Electrical schematics, single line diagrams, protection coordination studies, cable schedules, earthing design.
-    03.05.05 - IFC PDFs: Issued for Construction drawings in PDF format, controlled copies released to EPC contractor.
-    03.05.06 - Reference and OEM PDFs: Manufacturer datasheets in drawing format, OEM installation drawings.
-    03.05.07 - Data Sheets: Product datasheets, equipment specifications, module/inverter/transformer technical data.
-    03.05.08 - Design Risk Register: Design-stage risk registers, hazard logs, CDM designer risk records.
-  03.06 - Health & Safety: CDM pre-construction information, F10 notification, principal designer outputs, construction phase plan drafts, pre-start RAMS, H&S pre-qualification records.
+  // TECHNICAL branch
+  q_technical: {
+    tag: 'Pre-Delivery',
+    q: 'What area does the technical document relate to?',
+    opts: [
+      { label: 'Grid connection (application, offer, TQ, G99)',   next: 'q_grid' },
+      { label: 'EPC tender or contractor procurement',            next: 'r_03_02' },
+      { label: 'Site survey, ground investigation or ecology',    next: 'r_03_03' },
+      { label: 'Equipment procurement or purchase order',         next: 'r_03_04' },
+      { label: 'Design drawing, calculation or analysis',         next: 'q_design' },
+      { label: 'Health & Safety pre-construction document',       next: 'r_03_06' },
+    ]
+  },
 
-04 - Construction Phase
-  04.01 - IFC Plans and Drawings: Current IFC drawing set in use on site during construction.
-  04.02 - NCRs and Close Out: Non-conformance reports, NCR registers, corrective action records, close-out evidence.
-  04.03 - Site Audits: Site inspection records, audit reports, photographic evidence, quality surveillance records.
-  04.04 - Progress Reports: Weekly and monthly progress reports, programme updates, EPC progress photographs.
-  04.05 - Subcontractor Documents: Subcontractor RAMS, design submittals, quality plans, O&M manuals, commissioning records, test certificates.
+  // GRID sub-branch
+  q_grid: {
+    tag: 'Pre-Delivery > Grid',
+    q: 'Which type of grid document is it?',
+    opts: [
+      { label: 'Formal application or DNO application form',      next: 'r_03_01_01' },
+      { label: 'G99 relay settings or witness test record',       next: 'r_03_01_02' },
+      { label: 'Offer letter or acceptance from SSE / DNO',       next: 'r_03_01_03' },
+      { label: 'Technical query (TQ) or DNO response',           next: 'r_03_01_04' },
+      { label: 'Variation request or revised offer',              next: 'r_03_01_05' },
+    ]
+  },
 
-05 - Comms
-  05.01 - Meetings: Meeting agendas, minutes, action logs from all project meetings.
-  05.02 - Decision Logs: Formal decision logs, change decision records, structured records of decisions made outside a meeting.
-  05.03 - Key Emails: Significant email correspondence: client instructions, contractor notifications, DNO formal responses, planning authority correspondence, any email recording a decision, instruction, or formal position.
+  // DESIGN sub-branch
+  q_design: {
+    tag: 'Pre-Delivery > Design',
+    q: 'What type of design document is it?',
+    opts: [
+      { label: 'Energy yield, PVSol, calculation or analysis',    next: 'r_03_05_01' },
+      { label: 'Planning application drawing',                    next: 'r_03_05_02' },
+      { label: 'Working CAD file (.dwg)',                         next: 'r_03_05_03' },
+      { label: 'Electrical schematic, SLD or cable schedule',     next: 'r_03_05_04' },
+      { label: 'IFC drawing PDF issued for construction',         next: 'r_03_05_05' },
+      { label: 'OEM or manufacturer reference drawing',           next: 'r_03_05_06' },
+      { label: 'Product or equipment datasheet',                  next: 'r_03_05_07' },
+      { label: 'Design risk register or hazard log',              next: 'r_03_05_08' },
+    ]
+  },
 
-06 - O&M Post Construction
-  06.01 - Handover Docs: Practical completion certificates, handover certificates, O&M manuals, as-built drawings, H&S file at handover, training records, spare parts schedules, warranty documents.
+  // CONSTRUCTION branch
+  q_construction: {
+    tag: 'Construction Phase',
+    q: 'What type of construction document is it?',
+    opts: [
+      { label: 'IFC drawing set in use on site',                  next: 'r_04_01' },
+      { label: 'NCR, non-conformance or corrective action',       next: 'r_04_02' },
+      { label: 'Site audit, inspection or quality record',        next: 'r_04_03' },
+      { label: 'Progress report or programme update',             next: 'r_04_04' },
+      { label: 'Subcontractor RAMS, submittal or test cert',      next: 'r_04_05' },
+    ]
+  },
 
-FILING RULES:
-1. Always give the full folder path. Example: "03 - Pre-Delivery > 03.03 - Site Surveys"
-2. File by PRIMARY PURPOSE if a document could sit in more than one folder.
-3. Pre-contract versions go in 02. Issued or approved versions go in 03 or 04.
-4. IFC PDFs go in 03.05.05 when first issued. The working site set goes in 04.01.
-5. QMS-controlled documents (HP&E-PROC, HP&E-POL, HP&E-TEMP, HP&E-FORM, HP&E-QM document numbers) belong in the QMS folder structure, NOT here. Flag this clearly.
-6. If uncertain, ask one clarifying question. Do not guess.
+  // COMMS branch
+  q_comms: {
+    tag: 'Comms',
+    q: 'What type of communication is it?',
+    opts: [
+      { label: 'Meeting agenda, minutes or action log',           next: 'r_05_01' },
+      { label: 'Formal decision or change record',                next: 'r_05_02' },
+      { label: 'Key email recording instruction or position',     next: 'r_05_03' },
+    ]
+  },
 
-FORMAT: Lead with the folder path on its own line, highlighted clearly. Then one or two sentences explaining why. Keep it concise.`;
+  // RESULTS
+  r_01_01:    { path: '01 - Admin & Contract > 01.01 - Contracts',             desc: 'Executed contracts and signed appointments belong here. This is the definitive record of contractual commitments.' },
+  r_01_02:    { path: '01 - Admin & Contract > 01.02 - Invoices to Client',    desc: 'All fee invoices and drawdown requests raised to the client are filed here for financial record keeping.' },
+  r_01_03:    { path: '01 - Admin & Contract > 01.03 - NDA',                   desc: 'Non-disclosure and confidentiality agreements, whether signed or draft.' },
+  r_01_root:  { path: '01 - Admin & Contract',                                 desc: 'Draft documents, insurance certificates and general admin correspondence sit in the root of folder 01 until executed or categorised.', also: 'Once a draft contract is signed, move it to 01.01 - Contracts.' },
+  r_02_01:    { path: '02 - Opportunity Work > 02.01 - Client Information',    desc: 'Background information, site briefs and data packs provided by the client at opportunity stage before contract award.' },
+  r_02_02:    { path: '02 - Opportunity Work > 02.02 - ITT',                   desc: 'All pre-contract documents: ITTs, tender submissions, fee proposals, feasibility studies and grid pre-application correspondence.' },
+  r_03_01_01: { path: '03 - Pre-Delivery > 03.01 - Grid > 03.01.01 - Applications',               desc: 'Formal grid connection application forms and supporting documents submitted to SSE or the DNO.' },
+  r_03_01_02: { path: '03 - Pre-Delivery > 03.01 - Grid > 03.01.02 - G99 Compliance and Witness Testing', desc: 'G99 protection relay settings, witness test records and compliance submissions to the DNO.' },
+  r_03_01_03: { path: '03 - Pre-Delivery > 03.01 - Grid > 03.01.03 - Offer Acceptance',           desc: 'Grid connection offer letters received from the DNO and HP&E acceptance correspondence.' },
+  r_03_01_04: { path: '03 - Pre-Delivery > 03.01 - Grid > 03.01.04 - TQs and Responses',         desc: 'Technical queries raised to or received from SSE or the DNO, and all responses.' },
+  r_03_01_05: { path: '03 - Pre-Delivery > 03.01 - Grid > 03.01.05 - Variations',                desc: 'Grid connection variation requests, revised offer documents and scope change correspondence.' },
+  r_03_02:    { path: '03 - Pre-Delivery > 03.02 - Tender Document',           desc: 'EPC tender packages issued, returns received, bid evaluations and draft contractor appointments before execution.' },
+  r_03_03:    { path: '03 - Pre-Delivery > 03.03 - Site Surveys',              desc: 'Geotechnical reports, topographic surveys, ecology surveys, soil corrosivity data and all ground investigation results.' },
+  r_03_04:    { path: '03 - Pre-Delivery > 03.04 - Procurement',               desc: 'Equipment procurement documents, supplier quotes and purchase orders for long-lead items such as inverters and transformers.' },
+  r_03_05_01: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.01 - Analysis',                desc: 'Energy yield assessments, PVSol outputs, shading analysis, load flow studies, cable sizing and structural calculations.' },
+  r_03_05_02: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.02 - Planning Drawings',       desc: 'Drawings produced specifically for and submitted with the planning application to West Berkshire Council.' },
+  r_03_05_03: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.03 - Design CAD',              desc: 'Working AutoCAD files (.dwg). These are the editable source files, not the issued PDFs.' },
+  r_03_05_04: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.04 - Electrical Design',       desc: 'Electrical schematics, single line diagrams, protection coordination studies, cable schedules and earthing design documents.' },
+  r_03_05_05: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.05 - IFC PDFs',               desc: 'Issued for Construction drawings in PDF format. These are the controlled copies issued to EPC contractor EcoGen.', also: 'The working set in active use on site goes in 04.01 - IFC Plans and Drawings.' },
+  r_03_05_06: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.06 - Reference and OEM PDFs', desc: 'OEM installation drawings and reference drawings supplied by equipment manufacturers.' },
+  r_03_05_07: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.07 - Data Sheets',            desc: 'Product datasheets and technical data for modules, inverters, transformers and other specified equipment.' },
+  r_03_05_08: { path: '03 - Pre-Delivery > 03.05 - Design > 03.05.08 - Design Risk Register',   desc: 'Design-stage risk registers, hazard logs and CDM designer risk records.' },
+  r_03_06:    { path: '03 - Pre-Delivery > 03.06 - Health & Safety',           desc: 'Pre-construction H&S documents: CDM pre-construction information, F10 notification, construction phase plan drafts and pre-start RAMS.' },
+  r_04_01:    { path: '04 - Construction Phase > 04.01 - IFC Plans and Drawings', desc: 'The current IFC drawing set in active use on site. PDF originals when first issued go in 03.05.05.' },
+  r_04_02:    { path: '04 - Construction Phase > 04.02 - NCRs and Close Out',  desc: 'Non-conformance reports, NCR registers, corrective action records and close-out evidence.' },
+  r_04_03:    { path: '04 - Construction Phase > 04.03 - Site Audits',         desc: 'Site inspection records, audit reports, photographic evidence from site visits and quality surveillance records.' },
+  r_04_04:    { path: '04 - Construction Phase > 04.04 - Progress Reports',    desc: 'Weekly and monthly progress reports, programme updates, contractor progress submissions and EPC progress photographs.' },
+  r_04_05:    { path: '04 - Construction Phase > 04.05 - Subcontractor Documents', desc: 'Subcontractor RAMS, design submittals, quality plans, O&M manuals, commissioning records and test certificates.' },
+  r_05_01:    { path: '05 - Comms > 05.01 - Meetings',                         desc: 'Agendas, minutes and action logs from all project meetings including client, design, contractor and DNO meetings.' },
+  r_05_02:    { path: '05 - Comms > 05.02 - Decision Logs',                    desc: 'Formal decision logs and change decision records. Any structured record of a project decision made outside a meeting minute.' },
+  r_05_03:    { path: '05 - Comms > 05.03 - Key Emails',                       desc: 'Saved copies of significant emails recording instructions, formal positions, client directions or DNO responses.' },
+  r_om:       { path: '06 - O&M Post Construction > 06.01 - Handover Docs',    desc: 'Practical completion certificates, O&M manuals, as-built drawings, H&S file at handover, warranty documents and spare parts schedules.' },
+  r_qms:      { path: 'QMS Folder Structure (not a project folder)',            desc: 'This is a QMS-controlled document. It belongs in the QMS SharePoint site under 01 Quality Manual, 02 Policies, 03 Procedures, 04 Forms & Templates, or 05 Records, not in the project folders.', qms: true },
+};
 
-let apiKeyStored = 'AIzaSyD1ubp2jSYcCH7iRVVZsCBTUNTmaqsE8Jk';
-let history = [];
+let stack = []; // history of node keys for back navigation
 
-function saveKey() {
-  const key = document.getElementById('apiKey').value.trim();
-  if (!key) { alert('Please enter your Gemini API key.'); return; }
-  apiKeyStored = key;
-  document.getElementById('statusDot').classList.add('live');
-  document.getElementById('apiSection').classList.add('connected');
-  document.getElementById('apiKey').value = 'Connected';
-  document.getElementById('apiKey').disabled = true;
-  document.querySelector('.api-section .btn').textContent = 'Connected';
-  document.querySelector('.api-section .btn').disabled = true;
-  document.getElementById('submitBtn').disabled = false;
-  document.getElementById('queryInput').focus();
+function stepCount(key) {
+  // Estimate progress based on depth
+  if (key === 'start') return { step: 1, total: 3 };
+  if (['q_admin','q_precontract','q_technical','q_construction','q_comms'].includes(key)) return { step: 2, total: 3 };
+  if (['q_grid','q_design'].includes(key)) return { step: 3, total: 3 };
+  if (key.startsWith('r_')) return { step: 3, total: 3 };
+  return { step: 2, total: 3 };
 }
 
-document.getElementById('queryInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitQuery();
-});
+function render(key) {
+  const node = TREE[key];
+  const main = document.getElementById('main');
+  const backWrap = document.getElementById('backWrap');
+  const { step, total } = stepCount(key);
+  const pct = Math.round((step / total) * 100);
 
-async function submitQuery() {
-  const query = document.getElementById('queryInput').value.trim();
-  if (!query) return;
-  if (!apiKeyStored) { alert('Please connect your API key first.'); return; }
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Step ${step} of ${total}`;
 
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Thinking...';
-
-  document.getElementById('responseArea').innerHTML = `
-    <div class="response-card">
-      <div class="loading">
-        <div class="spinner"></div>
-        <span>Checking folder structure...</span>
-      </div>
-    </div>`;
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKeyStored}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: 'user', parts: [{ text: query }] }],
-          generationConfig: { maxOutputTokens: 600, temperature: 0.2 }
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      const msg = data.error?.message || 'API error';
-      throw new Error(msg);
-    }
-
-    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
-    const formatted = formatResponse(answer);
-
-    document.getElementById('responseArea').innerHTML = `
-      <div class="response-card">
-        <div class="response-header"><span>&#10003; Filing recommendation</span></div>
-        <div class="response-body">${formatted}</div>
-      </div>`;
-
-    history.unshift({ q: query, a: answer });
-    renderHistory();
-    document.getElementById('queryInput').value = '';
-
-  } catch (err) {
-    document.getElementById('responseArea').innerHTML =
-      `<div class="error-card">Error: ${err.message}</div>`;
+  // Back button
+  if (stack.length > 0) {
+    backWrap.innerHTML = `<button class="btn-back" onclick="goBack()">&#8592; Back</button>`;
+  } else {
+    backWrap.innerHTML = '';
   }
 
-  btn.disabled = false;
-  btn.textContent = 'Find folder \u2192';
-}
+  // Result node
+  if (node.path && !node.opts) {
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressLabel').textContent = 'Result';
 
-function formatResponse(text) {
-  return text
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(\d{2}(?:\.\d{2}(?:\.\d{2})?)?\s*[-\u2013]\s*[A-Za-z &()]+)/g, '<span class="path-highlight">$1</span>')
-    .replace(/\n/g, '<br>');
-}
+    const alsoHtml = node.also ? `<div class="result-also"><strong>Also note</strong>${node.also}</div>` : '';
+    const pathDisplay = node.path.replace(/ > /g, `<span class="arrow">›</span>`);
+    const isQms = node.qms;
 
-function renderHistory() {
-  if (history.length < 2) return;
-  const items = history.slice(1).map((item, i) => `
-    <div class="history-item">
-      <div class="history-question" onclick="toggleHistory(${i})">
-        <span class="q-text">${escapeHtml(item.q)}</span>
-        <span class="chevron" id="chev-${i}">&#9660;</span>
-      </div>
-      <div class="history-answer" id="hist-${i}">${formatResponse(item.a)}</div>
-    </div>`).join('');
+    main.innerHTML = `
+      <div class="result-card">
+        <div class="result-top">
+          <div class="tick">&#10003;</div>
+          <span>${isQms ? 'QMS Document Detected' : 'Filing Recommendation'}</span>
+        </div>
+        <div class="result-body">
+          <div class="result-path">${pathDisplay}</div>
+          <div class="result-desc">${node.desc}</div>
+          ${alsoHtml}
+          <button class="btn-reset" onclick="reset()">&#8635; Start again</button>
+        </div>
+      </div>`;
+    return;
+  }
 
-  document.getElementById('historyArea').innerHTML = `
-    <div style="margin-bottom:24px">
-      <div class="history-label">Previous queries this session</div>
-      ${items}
+  // Question node
+  const optsHtml = node.opts.map((o, i) => `
+    <button class="opt" onclick="choose('${o.next}', '${key}')">
+      <span class="opt-key">${String.fromCharCode(65 + i)}</span>
+      ${o.label}
+    </button>`).join('');
+
+  main.innerHTML = `
+    <div class="q-card">
+      <div class="q-tag">${node.tag}</div>
+      <div class="q-text">${node.q}</div>
+      <div class="options">${optsHtml}</div>
     </div>`;
 }
 
-function toggleHistory(i) {
-  document.getElementById(`hist-${i}`).classList.toggle('open');
-  document.getElementById(`chev-${i}`).classList.toggle('open');
+function choose(next, current) {
+  stack.push(current);
+  render(next);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function escapeHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function goBack() {
+  if (stack.length === 0) return;
+  const prev = stack.pop();
+  render(prev);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function reset() {
+  stack = [];
+  render('start');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  const opts = document.querySelectorAll('.opt');
+  if (opts.length === 0) return;
+  const idx = e.key.toUpperCase().charCodeAt(0) - 65;
+  if (idx >= 0 && idx < opts.length) opts[idx].click();
+  if (e.key === 'Backspace' && stack.length > 0) goBack();
+});
+
+render('start');
 </script>
 </body>
 </html>
